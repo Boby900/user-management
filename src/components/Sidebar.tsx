@@ -6,11 +6,9 @@ import {
   Users, 
   BarChart3, 
   Settings,
-  Menu,
   X
 } from 'lucide-react';
 import { ViewMode } from '../types';
-
 interface SidebarProps {
   activeView: ViewMode;
   onViewChange: (view: ViewMode) => void;
@@ -19,11 +17,11 @@ interface SidebarProps {
 }
 
 const navigationItems = [
-  { id: 'dashboard' as ViewMode, icon: LayoutDashboard, label: 'Dashboard' },
-  { id: 'projects' as ViewMode, icon: FolderOpen, label: 'Projects' },
-  { id: 'tasks' as ViewMode, icon: CheckSquare, label: 'Tasks' },
-  { id: 'team' as ViewMode, icon: Users, label: 'Team' },
-  { id: 'reports' as ViewMode, icon: BarChart3, label: 'Reports' },
+  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { id: 'projects', icon: FolderOpen, label: 'Projects' },
+  { id: 'tasks', icon: CheckSquare, label: 'Tasks' },
+  { id: 'team', icon: Users, label: 'Team' },
+  { id: 'reports', icon: BarChart3, label: 'Reports' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -69,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {navigationItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onViewChange(item.id)}
+                onClick={() => onViewChange(item.id as ViewMode)}
                 className={`
                   w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors
                   ${activeView === item.id 
