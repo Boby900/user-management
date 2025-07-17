@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -6,12 +7,13 @@ import { TaskBoard } from './components/TaskBoard';
 import { ProjectView } from './components/ProjectView';
 import { TeamView } from './components/TeamView';
 import { ReportsView } from './components/ReportsView';
-import { ViewMode, Task, Project, User } from './types';
+import { Task, Project, User, ViewMode } from './types';
 import { mockUsers, mockProjects, mockTasks, mockDashboardStats } from './data/mockData';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
-function App() {
-  const [activeView, setActiveView] = useState<ViewMode>('dashboard');
+const AppContent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', mockTasks);
   const [projects, setProjects] = useLocalStorage<Project[]>('projects', mockProjects);
@@ -42,62 +44,20 @@ function App() {
     setProjects([...projects, project]);
   };
 
-  const renderContent = () => {
-    switch (activeView) {
-      case 'dashboard':
-        return (
-          <Dashboard
-            stats={mockDashboardStats}
-            recentTasks={tasks}
-            projects={projects}
-          />
-        );
-      case 'tasks':
-        return (
-          <TaskBoard
-            tasks={tasks}
-            projects={projects}
-            users={users}
-            onTaskUpdate={handleTaskUpdate}
-            onTaskCreate={handleTaskCreate}
-          />
-        );
-      case 'projects':
-        return (
-          <ProjectView
-            projects={projects}
-            tasks={tasks}
-            users={users}
-            onProjectUpdate={handleProjectUpdate}
-            onProjectCreate={handleProjectCreate}
-          />
-        );
-      case 'team':
-        return (
-          <TeamView
-            users={users}
-            tasks={tasks}
-            projects={projects}
-          />
-        );
-      case 'reports':
-        return (
-          <ReportsView
-            tasks={tasks}
-            projects={projects}
-            users={users}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  // Get the current path and extract the view name, defaulting to 'dashboard' if invalid
+  const pathView = location.pathname.split('/')[1] || 'dashboard';
+  const activeView: ViewMode = ['dashboard', 'tasks', 'projects', 'team', 'reports'].includes(pathView) 
+    ? pathView as ViewMode 
+    : 'dashboard';
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar
         activeView={activeView}
-        onViewChange={setActiveView}
+        onViewChange={(view) => {
+          // The view is already validated as ViewMode
+          navigate(`/${view}`);
+        }}
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
@@ -109,10 +69,74 @@ function App() {
         />
         
         <main className="flex-1 overflow-auto">
-          {renderContent()}
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <Dashboard
+                  stats={mockDashboardStats}
+                  recentTasks={tasks}
+                  projects={projects}
+                />
+              } 
+            />
+            <Route 
+              path="/tasks" 
+              element={
+                <TaskBoard
+                  tasks={tasks}
+                  projects={projects}
+                  users={users}
+                  onTaskUpdate={handleTaskUpdate}
+                  onTaskCreate={handleTaskCreate}
+                />
+              } 
+            />
+            <Route 
+              path="/projects" 
+              element={
+                <ProjectView
+                  projects={projects}
+                  tasks={tasks}
+                  users={users}
+                  onProjectUpdate={handleProjectUpdate}
+                  onProjectCreate={handleProjectCreate}
+                />
+              } 
+            />
+            <Route 
+              path="/team" 
+              element={
+                <TeamView
+                  users={users}
+                  tasks={tasks}
+                  projects={projects}
+                />
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <ReportsView
+                  tasks={tasks}
+                  projects={projects}
+                  users={users}
+                />
+              } 
+            />
+          </Routes>
         </main>
       </div>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

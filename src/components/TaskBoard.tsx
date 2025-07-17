@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Filter, Search, Calendar, User, Tag } from 'lucide-react';
+import { Plus, Filter, Search, Calendar, User, Tag, Clock } from 'lucide-react';
 import { Task, Project, User as UserType } from '../types';
 
 interface TaskBoardProps {
